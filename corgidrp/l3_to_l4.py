@@ -1082,8 +1082,9 @@ def determine_wave_zeropoint(input_dataset, spec_filter_offset, template_dataset
     if not dpamname.startswith("PRISM"):
         raise AttributeError("This is not a spectroscopic observation. but {0}").format(dpamname)
     if dataset.frames[0].ext_hdr["FPAMNAME"] == 'OPEN_34':
-        warnings.warn("The dataset has FPAMNAME = OPEN_34, identicating that this is a non-coronagraphic spectroscopy observation, setting subtract_no_offset_frames = False")
-        subtract_no_offset_frames = False
+        if subtract_no_offset_frames:
+            warnings.warn("The dataset has FPAMNAME = OPEN_34, identicating that this is a non-coronagraphic spectroscopy observation, setting subtract_no_offset_frames = False")
+            subtract_no_offset_frames = False
 
     # Assumed that only narrowband filter (includes sat spots) frames are taken to fit the zeropoint
     narrow_dataset, band = dataset.split_dataset(exthdr_keywords=["CFAMNAME"])
@@ -1457,7 +1458,7 @@ def subtract_stellar_polarization(input_dataset, system_mueller_matrix_cal, nd_m
     Takes in polarimetric L3 images and their unocculted polarimetric observations,
     computes and subtracts off the stellar polarization component from each image
     TODO: make issue about error propagation, need to check that it is done correctly
-          and make changes if necessary to ensure the errors are accurate
+    and make changes if necessary to ensure the errors are accurate
 
     Args:
         input_dataset (corgidrp.data.Dataset): a dataset of L3 images, must include unocculted observations
